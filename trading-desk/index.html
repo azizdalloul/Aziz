@@ -1,0 +1,561 @@
+<title>غرفة التداول</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: dark command-center, regime strip on top, two CFD desks, scanner table, risk gate. Single dark look by choice (matches the carousel). */
+:root {
+  --bg: #06090e;
+  --panel: #0d141f;
+  --panel-2: #111b2a;
+  --line: #1c2b42;
+  --fg: #e8eef7;
+  --muted: #7d8ba1;
+  --green: #3ddc97;
+  --green-bg: rgba(61, 220, 151, 0.12);
+  --red: #ff5d4d;
+  --red-bg: rgba(255, 93, 77, 0.12);
+  --amber: #ff9a3c;
+  --amber-bg: rgba(255, 154, 60, 0.12);
+  --blue: #4c8dff;
+  --blue-bg: rgba(76, 141, 255, 0.12);
+  --font-ar: "Tajawal", "Segoe UI", Tahoma, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ar);
+  font-size: 15px;
+  line-height: 1.5;
+  padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background-image: linear-gradient(rgba(76,141,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(76,141,255,.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+.mono, .num { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; display: inline-block; font-variant-numeric: tabular-nums; }
+.up { color: var(--green); } .dn { color: var(--red); } .am { color: var(--amber); } .bl { color: var(--blue); } .mu { color: var(--muted); }
+
+header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; }
+.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em; color: var(--green); border: 1px solid rgba(61,220,151,.4); background: var(--green-bg); padding: 3px 10px; border-radius: 99px; display: inline-block; direction: ltr; }
+h1 { margin: 8px 0 0; font-size: clamp(28px, 5vw, 44px); line-height: 1.15; font-weight: 800; text-wrap: balance; }
+h1 mark { background: var(--green); color: #04110b; padding: 0 .25em; border-radius: 6px; box-shadow: 0 0 28px rgba(61,220,151,.45); }
+.clocks { display: flex; gap: 8px; flex-wrap: wrap; }
+.clock { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 8px 12px; min-width: 112px; }
+.clock small { display: block; color: var(--muted); font-size: 11px; }
+.clock b { font-family: var(--font-mono); font-size: 17px; font-weight: 500; direction: ltr; unicode-bidi: isolate; display: inline-block; }
+.state { font-size: 12px; }
+
+.banner { border: 1px solid; border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+.banner.warn { border-color: rgba(255,154,60,.5); background: var(--amber-bg); color: #ffc58f; }
+.banner.bad { border-color: rgba(255,93,77,.5); background: var(--red-bg); color: #ff9d92; }
+.banner.info { border-color: rgba(76,141,255,.45); background: var(--blue-bg); color: #a9c7ff; }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+.panel h2 { margin: 0 0 12px; font-size: 13px; font-weight: 500; letter-spacing: .12em; color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; direction: ltr; text-align: right; }
+.panel h2 .ar { font-family: var(--font-ar); letter-spacing: 0; text-transform: none; font-size: 15px; font-weight: 700; color: var(--fg); }
+
+.regime { display: grid; grid-template-columns: 1.25fr 2fr; gap: 14px; }
+.verdict-big { display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+.verdict-big .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; color: var(--muted); direction: ltr; text-align: right; }
+.verdict-big .word { font-size: 34px; font-weight: 800; line-height: 1.1; }
+.verdict-big p { margin: 0; color: var(--muted); font-size: 14px; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.tile { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.tile small { color: var(--muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; display: block; direction: ltr; text-align: right; }
+.tile .v { font-family: var(--font-mono); font-size: 20px; direction: ltr; text-align: right; font-weight: 500; }
+.tile .c { font-family: var(--font-mono); font-size: 13px; direction: ltr; text-align: right; }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 2px 10px; border-radius: 99px; border: 1px solid; white-space: nowrap; }
+.pill.g { color: var(--green); border-color: rgba(61,220,151,.45); background: var(--green-bg); }
+.pill.r { color: var(--red); border-color: rgba(255,93,77,.45); background: var(--red-bg); }
+.pill.a { color: var(--amber); border-color: rgba(255,154,60,.45); background: var(--amber-bg); }
+.pill.b { color: var(--blue); border-color: rgba(76,141,255,.45); background: var(--blue-bg); }
+.pill.n { color: var(--muted); border-color: var(--line); }
+
+.desks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.desk-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.desk-head .sym { font-family: var(--font-mono); font-size: 13px; color: var(--muted); direction: ltr; }
+.desk-head .px { font-family: var(--font-mono); font-size: 30px; font-weight: 500; direction: ltr; }
+.range-bar { position: relative; height: 6px; background: var(--line); border-radius: 4px; margin: 6px 0 4px; }
+.range-bar i { position: absolute; top: -3px; width: 3px; height: 12px; background: var(--fg); border-radius: 2px; }
+.range-lbl { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--muted); direction: ltr; }
+.chart { width: 100%; height: auto; display: block; margin-top: 8px; background: #080d15; border: 1px solid var(--line); border-radius: 8px; }
+.chart text { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+.chart .lv-g { stroke: var(--green); } .chart .lv-r { stroke: var(--red); } .chart .lv-a { stroke: var(--amber); } .chart .lv-b { stroke: var(--blue); }
+.chart text.t-g { fill: var(--green); } .chart text.t-r { fill: var(--red); } .chart text.t-a { fill: var(--amber); } .chart text.t-b { fill: var(--blue); }
+
+.inds { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.ind { border: 1px solid var(--line); background: var(--panel-2); border-radius: 8px; padding: 6px 8px; font-size: 12px; }
+.ind small { display: block; color: var(--muted); font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; direction: ltr; text-align: right; }
+.ind b { font-weight: 700; }
+
+.tickets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.ticket { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--panel-2); }
+.ticket.buy { border-color: rgba(61,220,151,.35); } .ticket.sell { border-color: rgba(255,93,77,.35); }
+.ticket.off { opacity: .55; }
+.ticket h3 { margin: 0 0 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; }
+.ticket h3 .mono { font-size: 12px; letter-spacing: .08em; }
+.ticket dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 13px; }
+.ticket dt { color: var(--muted); }
+.ticket dd { margin: 0; text-align: left; font-family: var(--font-mono); direction: ltr; }
+.ticket ul { margin: 8px 0 0; padding: 0 16px 0 0; font-size: 12px; color: var(--muted); }
+.ticket li { margin: 2px 0; }
+.cfd-note { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 12px; }
+.controls label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+input[type=number], select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; font-family: var(--font-mono); font-size: 14px; width: 96px; direction: ltr; }
+select { width: auto; font-family: var(--font-ar); }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+.risk { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.meter { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.meter small { color: var(--muted); font-size: 12px; }
+.meter .val { font-family: var(--font-mono); font-size: 18px; direction: ltr; text-align: right; }
+.bar { height: 6px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--green); }
+.bar i.hot { background: var(--amber); } .bar i.max { background: var(--red); }
+.kill { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid; margin-top: 12px; font-weight: 700; }
+.kill.ok { border-color: rgba(61,220,151,.4); background: var(--green-bg); color: var(--green); }
+.kill.stop { border-color: rgba(255,93,77,.5); background: var(--red-bg); color: var(--red); }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.tab { font-family: var(--font-ar); font-size: 13px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 99px; padding: 4px 12px; cursor: pointer; }
+.tab[aria-pressed=true] { color: var(--fg); border-color: var(--blue); background: var(--blue-bg); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 760px; }
+th { text-align: right; color: var(--muted); font-weight: 500; font-size: 12px; padding: 8px 10px; border-bottom: 1px solid var(--line); background: var(--panel-2); white-space: nowrap; }
+td { padding: 7px 10px; border-bottom: 1px solid rgba(28,43,66,.6); white-space: nowrap; }
+td.n { text-align: left; font-family: var(--font-mono); direction: ltr; }
+tr:last-child td { border-bottom: 0; }
+td .tk { font-family: var(--font-mono); font-weight: 700; direction: ltr; display: inline-block; }
+.legend { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+.skeleton { color: var(--muted); padding: 18px 4px; font-size: 14px; }
+footer { color: var(--muted); font-size: 12px; text-align: center; font-family: var(--font-mono); letter-spacing: .06em; direction: ltr; }
+
+@media (max-width: 860px) {
+  .regime, .desks { grid-template-columns: 1fr; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .risk { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .tickets { grid-template-columns: 1fr; }
+  .inds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .desk-head .px { font-size: 26px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .live-dot { animation: pulse 2s ease-in-out infinite; }
+}
+@keyframes pulse { 50% { opacity: .35; } }
+.live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-left: 6px; }
+.live-dot.off { background: var(--muted); animation: none; }
+</style>
+
+<div class="wrap" dir="rtl" lang="ar">
+  <header class="top">
+    <div>
+      <span class="eyebrow">TRADING DESK · XAUUSD · NASDAQ 100</span>
+      <h1>كل صفقة <mark>بخطة</mark> قبل ما تدخل.</h1>
+    </div>
+    <div class="clocks" aria-label="الوقت">
+      <div class="clock"><small>الدوحة</small><b id="clk-doha">--:--:--</b></div>
+      <div class="clock"><small>نيويورك</small><b id="clk-ny">--:--:--</b></div>
+      <div class="clock"><small>الأسهم</small><span id="st-stocks" class="pill n state">—</span></div>
+      <div class="clock"><small>الذهب / TECH100</small><span id="st-gold" class="pill n state">—</span></div>
+    </div>
+  </header>
+
+  <div id="banners"></div>
+
+  <section class="panel" aria-labelledby="h-regime">
+    <h2 id="h-regime"><span class="ar">وضع السوق</span> · MARKET REGIME</h2>
+    <div class="regime" id="regime"><div class="skeleton">جاري جلب البيانات الحية من TradingView…</div></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-risk">
+    <h2 id="h-risk"><span class="ar">بوابة الحماية</span> · RISK GATE</h2>
+    <div class="controls">
+      <label>الحساب $ <input type="number" id="in-acct" min="0" step="100"></label>
+      <label>مخاطرة الصفقة
+        <select id="in-rpct"><option value="0.5">0.5% (B)</option><option value="1">1% (A)</option></select>
+      </label>
+      <label>خسارة اليوم $ <input type="number" id="in-pnl" step="10"></label>
+      <label>صفقات اليوم <input type="number" id="in-trades" min="0" step="1"></label>
+      <label>خسارات ورا بعض <input type="number" id="in-losses" min="0" step="1"></label>
+    </div>
+    <div class="risk" id="risk"></div>
+    <div id="kill"></div>
+    <p class="legend">الحدود الافتراضية: 2% خسارة باليوم، 3 صفقات CFD، وخسارتين ورا بعض = توقف لآخر اليوم. القيم هون بتنحفظ على جهازك بس.</p>
+  </section>
+
+  <div class="desks" id="desks"></div>
+
+  <section class="panel" aria-labelledby="h-scan">
+    <h2 id="h-scan"><span class="ar">ماسح الووتش ليست</span> · WATCHLIST SCANNER</h2>
+    <div class="tabs" id="tabs"></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>الرمز</th><th>السعر</th><th>اليوم</th><th>فوليوم نسبي</th><th>ATR %</th><th>RSI يومي</th><th>RSI 15م</th><th>TV 15م</th><th>الحالة</th></tr></thead>
+      <tbody id="scan"><tr><td colspan="9" class="skeleton">جاري جلب الووتش ليست…</td></tr></tbody>
+    </table></div>
+    <p class="legend">الفلتر من الخطة: متوسط فوليوم ≥ 1 مليون، فوليوم نسبي ≥ 2، ATR ≥ 3% من السعر، السعر بين 2$ و500$ (MU مستثنى). الماسح بيلاقي مرشحين، مش ضمانات. افتح الشارت وتأكد قبل الدخول.</p>
+  </section>
+
+  <footer id="foot">DATA: TRADINGVIEW · REFRESH 30s · قرار التنفيذ إلك</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var SERVER = "Trading";
+  var XAU = "OANDA:XAUUSD", NDX = "NASDAQ:NDX", SPX = "SP:SPX", VIX = "TVC:VIX";
+  var CORE_COLS = ["name","description","close","change","change_abs","high","low","volume","RSI","RSI|15","Recommend.All","Recommend.All|15","Recommend.All|60","ATR","VWAP"];
+  var STOCK_COLS = ["name","description","close","change","volume","average_volume_10d_calc","relative_volume_10d_calc","RSI","RSI|15","Recommend.All|15","ATR"];
+
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var num = function (x, d) { if (x == null || isNaN(x)) return "—"; d = d == null ? 2 : d; return Number(x).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }); };
+  var pct = function (x) { return x == null || isNaN(x) ? "—" : (x > 0 ? "+" : "") + num(x, 2) + "%"; };
+  var cls = function (x) { return x > 0 ? "up" : x < 0 ? "dn" : ""; };
+  var N = function (v) { return '<span class="num">' + v + "</span>"; };
+  var payloadOf = function (r) { var p = r && r.payload; if (typeof p === "string") { try { p = JSON.parse(p); } catch (e) { /* keep */ } } return p; };
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem("td_" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem("td_" + k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
+  };
+
+  var S = {
+    core: {}, stocks: {}, bars: {}, sections: [], tab: store.get("tab", ""), errs: {}, updated: null, live: false,
+    cfg: { acct: store.get("acct", 10500), rpct: store.get("rpct", 1), pnl: store.get("pnl", 0), trades: store.get("trades", 0), losses: store.get("losses", 0), rangeN: store.get("rangeN", 4) }
+  };
+
+  /* ---------- time / sessions ---------- */
+  function parts(tz) {
+    var f = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour12: false, weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    var o = {}; f.formatToParts(new Date()).forEach(function (p) { o[p.type] = p.value; });
+    var h = parseInt(o.hour, 10) % 24;
+    return { wd: o.weekday, h: h, m: parseInt(o.minute, 10), s: parseInt(o.second, 10), str: String(h).padStart(2, "0") + ":" + o.minute + ":" + o.second };
+  }
+  function sessions() {
+    var d = parts("Asia/Qatar"), ny = parts("America/New_York");
+    var nyMin = ny.h * 60 + ny.m, wk = ["Mon","Tue","Wed","Thu","Fri"].indexOf(ny.wd) >= 0;
+    var stocks = wk && nyMin >= 570 && nyMin < 960;
+    var gold;
+    if (ny.wd === "Sat") gold = false;
+    else if (ny.wd === "Sun") gold = nyMin >= 1080;
+    else if (ny.wd === "Fri") gold = nyMin < 1020;
+    else gold = !(nyMin >= 1020 && nyMin < 1080);
+    var noEntry = wk && nyMin >= 570 && nyMin < 585;
+    var dohaMin = d.h * 60 + d.m;
+    var lateGold = gold && dohaMin >= 30 && dohaMin < 240;
+    return { doha: d.str, ny: ny.str, stocks: stocks, gold: gold, noEntry: noEntry, lateGold: lateGold };
+  }
+  function tickClock() {
+    var s = sessions();
+    $("#clk-doha").textContent = s.doha; $("#clk-ny").textContent = s.ny;
+    var a = $("#st-stocks"), g = $("#st-gold");
+    a.className = "pill state " + (s.stocks ? "g" : "n"); a.textContent = s.stocks ? (s.noEntry ? "مفتوح · ممنوع دخول" : "مفتوح") : "مسكّر";
+    g.className = "pill state " + (s.gold ? (s.lateGold ? "a" : "g") : "n"); g.textContent = s.gold ? (s.lateGold ? "مفتوح · بعد 00:30" : "مفتوح") : "مسكّر";
+  }
+
+  /* ---------- indicators ---------- */
+  function sma(a, n) { var s = a.slice(-n); return s.reduce(function (x, y) { return x + y; }, 0) / s.length; }
+  function stdev(a, n) { var s = a.slice(-n), m = sma(a, n); return Math.sqrt(s.reduce(function (x, y) { return x + (y - m) * (y - m); }, 0) / s.length); }
+  function ema(a, n) { var k = 2 / (n + 1), e = a[0]; for (var i = 1; i < a.length; i++) e = a[i] * k + e * (1 - k); return e; }
+  function atr(b, n) {
+    var tr = []; for (var i = 1; i < b.c.length; i++) tr.push(Math.max(b.h[i] - b.l[i], Math.abs(b.h[i] - b.c[i - 1]), Math.abs(b.l[i] - b.c[i - 1])));
+    return sma(tr, n);
+  }
+  function sign(x) { return x == null ? 0 : x > 0.1 ? 1 : x < -0.1 ? -1 : 0; }
+
+  /* ---------- regime ---------- */
+  function regime() {
+    var v = S.core[VIX], s = S.core[SPX], n = S.core[NDX];
+    if (!v || !s || !n) return null;
+    var below = s.VWAP != null && n.VWAP != null && s.close < s.VWAP && n.close < n.VWAP;
+    var above = s.VWAP != null && n.VWAP != null && s.close > s.VWAP && n.close > n.VWAP;
+    if (v.close > 25 && below) return { k: "neg", word: "سلبي", c: "dn", note: "VIX فوق 25 والمؤشرين تحت VWAP. درجة A بس، ونص الحجم، وغير هيك لا صفقة." };
+    if (v.close < 20 && above) return { k: "pos", word: "إيجابي", c: "up", note: "VIX تحت 20 والمؤشرين فوق VWAP. بتشتغل عادي حسب الخطة." };
+    return { k: "neu", word: "محايد", c: "am", note: "الإشارات مختلطة. درجة A بس، وبنص الحجم." };
+  }
+
+  /* ---------- risk gate ---------- */
+  function gate() {
+    var c = S.cfg, lim = c.acct * 0.02, why = [];
+    var lossToday = Math.max(0, -c.pnl);
+    if (lossToday >= lim) why.push("وصلت حد الخسارة اليومية (2%)");
+    if (c.trades >= 3) why.push("وصلت 3 صفقات CFD باليوم");
+    if (c.losses >= 2) why.push("خسارتين ورا بعض");
+    return { stop: why.length > 0, why: why.join(" · "), lim: lim, lossToday: lossToday };
+  }
+
+  /* ---------- CFD plan ---------- */
+  function plan(key, q, b) {
+    var n = Math.min(S.cfg.rangeN, b.c.length), L = b.c.length, hi = -Infinity, lo = Infinity;
+    for (var i = L - n; i < L; i++) { hi = Math.max(hi, b.h[i]); lo = Math.min(lo, b.l[i]); }
+    var atr15 = atr(b, 14), atr5 = atr15 * 0.577, buf = atr5 * 0.1, mid = (hi + lo) / 2;
+    var closes = b.c, px = q.close;
+    var bbM = sma(closes, 20), bbS = stdev(closes, 20), e9 = ema(closes, 9), e20 = ema(closes, 20);
+    var buyE = hi + buf, sellE = lo - buf;
+    var Rb = buyE - mid, Rs = mid - sellE;
+    var rsi15 = q["RSI|15"], rec15 = q["Recommend.All|15"], rec60 = q["Recommend.All|60"], vwap = q.VWAP;
+    var r = regime(), g = gate(), sess = sessions();
+    var open = key === "XAU" ? sess.gold : sess.gold;
+    var t15 = sign(rec15), t60 = sign(rec60);
+    var inds = [
+      { k: "VWAP", s: vwap == null ? 0 : px > vwap ? 1 : -1, t: vwap == null ? "—" : (px > vwap ? "فوقه" : "تحته") },
+      { k: "BB 20,2", s: px > bbM ? 1 : -1, t: px >= bbM + 1.9 * bbS ? "لازق بالعلوي" : px <= bbM - 1.9 * bbS ? "لازق بالسفلي" : (px > bbM ? "فوق الخط النص" : "تحت الخط النص") },
+      { k: "EMA 9/20", s: e9 > e20 ? 1 : -1, t: e9 > e20 ? "مرتبين لفوق" : "مرتبين لتحت" },
+      { k: "RSI 14 · 15م", s: rsi15 == null ? 0 : rsi15 > 50 ? 1 : -1, t: rsi15 == null ? "—" : num(rsi15, 1) },
+      { k: "TV 15م / 1س", s: t15 === t60 ? t15 : 0, t: (t15 > 0 ? "شراء" : t15 < 0 ? "بيع" : "محايد") + " / " + (t60 > 0 ? "شراء" : t60 < 0 ? "بيع" : "محايد") }
+    ];
+    function side(dir) {
+      var E = dir === "buy" ? buyE : sellE, R = dir === "buy" ? Rb : Rs;
+      var sl = mid, tp = dir === "buy" ? E + 2 * R : E - 2 * R;
+      var reasons = [], blocked = false, mult = 1, cond = false;
+      if (g.stop) { blocked = true; reasons.push(g.why + ": ما في دخول جديد"); }
+      if (dir === "buy" && rsi15 != null && rsi15 > 70) { blocked = true; reasons.push("RSI 15م فوق 70: ممنوع شراء جديد، استنى الرجوع"); }
+      if (dir === "sell" && rsi15 != null && rsi15 < 30) { blocked = true; reasons.push("RSI 15م تحت 30: ممنوع بيع جديد، هاد مسك سكينة عم توقع"); }
+      if (R > 1.5 * atr5) { blocked = true; reasons.push("الستوب أوسع من مرة ونص من ATR الخمس دقايق: واسع للسكالب، جرّب نطاق أقصر"); }
+      if (r && r.k === "neg") { mult = 0.5; reasons.push("السوق سلبي: نص الحجم"); }
+      if (r && r.k === "neu") { mult = 0.5; reasons.push("السوق محايد: نص الحجم"); }
+      if (t15 !== 0 && t60 !== 0 && t15 !== t60) { mult = 0.5; reasons.push("فريم 15م و1س متعاكسين: نص الحجم"); }
+      var against = (dir === "buy" && t15 < 0 && t60 < 0) || (dir === "sell" && t15 > 0 && t60 > 0);
+      if (against) { cond = true; mult = 0.5; reasons.push("عكس الترند: بدّه قاع أعلى + كسر مستوى مهم + KST قطع لفوق، وبنص الحجم"); }
+      var risk = S.cfg.acct * S.cfg.rpct / 100 * mult;
+      var units = risk / R;
+      var agree = inds.filter(function (i) { return i.s === (dir === "buy" ? 1 : -1); }).length;
+      return { dir: dir, E: E, R: R, sl: sl, tp: tp, blocked: blocked, cond: cond, mult: mult, reasons: reasons, risk: risk, units: units, amount: units * E, win: units * 2 * R, agree: agree };
+    }
+    var buy = side("buy"), sell = side("sell");
+    return { key: key, q: q, b: b, hi: hi, lo: lo, mid: mid, atr15: atr15, atr5: atr5, inds: inds, buy: buy, sell: sell, open: open, vwap: vwap, e9: e9, e20: e20, bbM: bbM, bbU: bbM + 2 * bbS, bbL: bbM - 2 * bbS, n: n };
+  }
+
+  /* ---------- rendering ---------- */
+  function renderBanners() {
+    var out = [], seen = {};
+    Object.keys(S.errs).forEach(function (k) {
+      var e = S.errs[k]; if (!e) return; var code = e.code || "upstream_error", msg;
+      if (code === "server_not_connected" || code === "selection_required") msg = "موصل TradingView (Trading) مش مربوط عندك. ضيفه من إعدادات الموصلات في claude.ai وارجع افتح الصفحة.";
+      else if (code === "needs_reauth") msg = "جلسة موصل Trading انتهت. أعد الربط من الإعدادات › الموصلات.";
+      else if (code === "not_in_manifest" || code === "consent_required" || code === "approval_required") msg = "الصفحة بحاجة لموافقتك على استخدام موصل Trading. افتحها في claude.ai واسمح لها.";
+      else if (code === "blocked_by_policy") msg = "إعدادات المؤسسة بتمنع هالأداة من الموصل.";
+      else if (code === "server_unavailable" || code === "rate_limited") msg = "TradingView مش مجاوب هلق. بنحاول تاني تلقائياً، وآخر بيانات ناجحة ظاهرة تحت.";
+      else msg = "تعذّر جلب جزء من البيانات (" + esc(k) + "). الباقي شغال.";
+      if (!seen[msg]) { seen[msg] = 1; out.push('<div class="banner ' + (code === "server_unavailable" ? "warn" : "bad") + '">' + msg + "</div>"); }
+    });
+    var s = sessions();
+    if (!s.gold && !s.stocks) out.push('<div class="banner info">الأسواق مسكّرة هلق. الأرقام تحت هي آخر إغلاق، والأوامر المقترحة جاهزة لافتتاح الجلسة الجاية. انتبه للفجوة عالافتتاح: الستوب ما بيحميك منها.</div>');
+    if (s.noEntry) out.push('<div class="banner warn">أول ربع ساعة بعد افتتاح نيويورك: ممنوع أي دخول لحد 17:45 بالدوحة.</div>');
+    if (s.lateGold) out.push('<div class="banner warn">بعد 00:30 بالدوحة: ما في دخول جديد على الذهب، والسبريد بيوسع قبل استراحة الساعة 1.</div>');
+    $("#banners").innerHTML = out.join("");
+  }
+
+  function renderRegime() {
+    var r = regime(), el = $("#regime");
+    if (!r) { el.innerHTML = '<div class="skeleton">بانتظار بيانات SPX و NDX و VIX…</div>'; return; }
+    function tile(lbl, q, d) { return '<div class="tile"><small>' + lbl + '</small><div class="v">' + N(num(q.close, d)) + '</div><div class="c ' + cls(q.change) + '">' + N(pct(q.change)) + "</div></div>"; }
+    el.innerHTML =
+      '<div class="verdict-big"><span class="label">REGIME</span><span class="word ' + r.c + '">' + r.word + "</span><p>" + r.note + "</p></div>" +
+      '<div class="tiles">' + tile("XAUUSD", S.core[XAU], 2) + tile("NDX", S.core[NDX], 0) + tile("SPX", S.core[SPX], 0) + tile("VIX", S.core[VIX], 2) + "</div>";
+  }
+
+  function renderRisk() {
+    var c = S.cfg, g = gate();
+    function meter(lbl, v, max, fmt) {
+      var p = Math.min(100, Math.round(v / max * 100)), k = p >= 100 ? "max" : p >= 60 ? "hot" : "";
+      return '<div class="meter"><small>' + lbl + '</small><div class="val">' + N(fmt) + '</div><div class="bar"><i class="' + k + '" style="width:' + p + '%"></i></div></div>';
+    }
+    $("#risk").innerHTML =
+      meter("خسارة اليوم من الحد", g.lossToday, g.lim, "$" + num(g.lossToday, 0) + " / $" + num(g.lim, 0)) +
+      meter("صفقات اليوم", c.trades, 3, c.trades + " / 3") +
+      meter("خسارات ورا بعض", c.losses, 2, c.losses + " / 2");
+    $("#kill").innerHTML = g.stop
+      ? '<div class="kill stop">وقفت. ' + esc(g.why) + ". الإدارة للمراكز المفتوحة بس، وما في دخول جديد لآخر اليوم.</div>"
+      : '<div class="kill ok">الدخول مسموح حسب الحدود. المخاطرة الكاملة للصفقة $' + num(c.acct * c.rpct / 100, 0) + " (" + c.rpct + "% من الحساب).</div>";
+  }
+
+  function chartSvg(p) {
+    var b = p.b, L = b.c.length, W = 640, H = 230, padL = 8, padR = 74, padT = 10, padB = 14;
+    var lv = [p.buy.E, p.sell.E, p.mid];
+    if (p.vwap != null) lv.push(p.vwap);
+    var mn = Math.min.apply(null, b.l.concat(lv)), mx = Math.max.apply(null, b.h.concat(lv));
+    var pad = (mx - mn) * 0.04; mn -= pad; mx += pad;
+    var y = function (v) { return padT + (mx - v) / (mx - mn) * (H - padT - padB); };
+    var cw = (W - padL - padR) / L, x = function (i) { return padL + i * cw + cw / 2; };
+    var s = '<svg class="chart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="شارت 15 دقيقة مع مستويات الأوامر">';
+    // grid + price ticks
+    for (var t = 0; t <= 4; t++) { var v = mn + (mx - mn) * t / 4, yy = y(v); s += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yy + '" y2="' + yy + '" stroke="#16233a" stroke-width="1"/><text x="' + (W - padR + 6) + '" y="' + (yy + 3) + '">' + num(v, p.q.close > 1000 ? 0 : 2) + "</text>"; }
+    // range box
+    var n = Math.min(S.cfg.rangeN, L);
+    s += '<rect x="' + (padL + (L - n) * cw) + '" y="' + y(p.hi) + '" width="' + (n * cw) + '" height="' + (y(p.lo) - y(p.hi)) + '" fill="#4c8dff" opacity=".10"/>';
+    for (var i = 0; i < L; i++) {
+      var up = b.c[i] >= b.o[i], col = up ? "var(--green)" : "var(--red)";
+      s += '<line x1="' + x(i) + '" x2="' + x(i) + '" y1="' + y(b.h[i]) + '" y2="' + y(b.l[i]) + '" stroke="' + col + '" stroke-width="1"/>';
+      var top = y(Math.max(b.o[i], b.c[i])), hgt = Math.max(1, Math.abs(y(b.o[i]) - y(b.c[i])));
+      s += '<rect x="' + (x(i) - cw * 0.33) + '" y="' + top + '" width="' + (cw * 0.66) + '" height="' + hgt + '" fill="' + col + '"/>';
+    }
+    function line(v, c, label, dash) {
+      var yy = y(v);
+      return '<line class="lv-' + c + '" x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yy + '" y2="' + yy + '" stroke-width="1" stroke-dasharray="' + (dash || "5 4") + '"/><text class="t-' + c + '" x="' + (W - padR + 6) + '" y="' + (yy - 3) + '">' + label + "</text>";
+    }
+    s += line(p.buy.E, "g", "BUY STOP", "") + line(p.sell.E, "r", "SELL STOP", "") + line(p.mid, "a", "SL (mid)", "2 4");
+    if (p.vwap != null) s += line(p.vwap, "b", "VWAP", "1 3");
+    return s + "</svg>";
+  }
+
+  function ticketHtml(t, p, label) {
+    var digits = p.q.close > 1000 ? 1 : 2;
+    var status = t.blocked ? '<span class="pill r">ممنوع</span>' : t.cond ? '<span class="pill a">مشروط</span>' : t.mult < 1 ? '<span class="pill a">نص حجم</span>' : '<span class="pill g">جاهز</span>';
+    var rows =
+      "<dt>" + (t.dir === "buy" ? "Set Stop (Buy)" : "Set Stop (Sell)") + "</dt><dd>" + num(t.E, digits) + "</dd>" +
+      "<dt>Take Profit (2R)</dt><dd>" + num(t.tp, digits) + "</dd>" +
+      "<dt>Stop Loss</dt><dd>" + num(t.sl, digits) + "</dd>" +
+      "<dt>المبلغ بالتطبيق</dt><dd>$" + num(t.amount, 0) + "</dd>" +
+      "<dt>الربح عند الهدف</dt><dd class=\"up\">+$" + num(t.win, 0) + "</dd>" +
+      "<dt>الخسارة عند الستوب</dt><dd class=\"dn\">−$" + num(t.risk, 0) + "</dd>" +
+      (p.key === "XAU" ? "<dt>هامش تقريبي (÷20)</dt><dd>$" + num(t.amount / 20, 0) + "</dd>" : "") +
+      "<dt>توافق المؤشرات</dt><dd>" + t.agree + " / 5</dd>";
+    var rs = t.reasons.length ? "<ul>" + t.reasons.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "";
+    return '<div class="ticket ' + t.dir + (t.blocked ? " off" : "") + '"><h3><span>' + label + '</span>' + status + "</h3><dl>" + rows + "</dl>" + rs + "</div>";
+  }
+
+  function renderDesks() {
+    var el = $("#desks"), html = "";
+    [["XAU", XAU, "الذهب · XAUUSD"], ["NDX", NDX, "ناسداك · TECH100"]].forEach(function (d) {
+      var q = S.core[d[1]], b = S.bars[d[0]];
+      if (!q) { html += '<section class="panel"><h2><span class="ar">' + d[2] + '</span></h2><div class="skeleton">بانتظار السعر…</div></section>'; return; }
+      var pos = q.high > q.low ? Math.max(0, Math.min(100, (q.close - q.low) / (q.high - q.low) * 100)) : 50;
+      var head = '<div class="desk-head"><div><div class="sym">' + esc(d[1]) + '</div><div class="px">' + N(num(q.close, q.close > 1000 ? 1 : 2)) + '</div></div><div><span class="pill ' + (q.change > 0 ? "g" : q.change < 0 ? "r" : "n") + '">' + N(pct(q.change)) + '</span></div></div>' +
+        '<div class="range-bar"><i style="right:calc(' + (100 - pos) + '% - 1px)"></i></div><div class="range-lbl"><span>H ' + num(q.high, q.close > 1000 ? 0 : 1) + '</span><span>L ' + num(q.low, q.close > 1000 ? 0 : 1) + '</span></div>';
+      if (!b) { html += '<section class="panel"><h2><span class="ar">' + d[2] + "</span></h2>" + head + '<div class="skeleton">بانتظار شموع 15 دقيقة…</div></section>'; return; }
+      var p = plan(d[0], q, b);
+      var allBlocked = p.buy.blocked && p.sell.blocked;
+      var anyClean = (!p.buy.blocked && !p.buy.cond && p.buy.mult === 1) || (!p.sell.blocked && !p.sell.cond && p.sell.mult === 1);
+      var v = allBlocked ? '<span class="pill r">لا صفقة</span>' : anyClean ? '<span class="pill g">فرصة</span>' : '<span class="pill a">مراقبة</span>';
+      var lastT = b.t[b.t.length - 1];
+      var inds = '<div class="inds">' + p.inds.map(function (i) {
+        return '<div class="ind"><small>' + esc(i.k) + '</small><b class="' + (i.s > 0 ? "up" : i.s < 0 ? "dn" : "mu") + '">' + esc(i.t) + "</b></div>";
+      }).join("") + "</div>";
+      var sel = '<div class="controls" style="margin:10px 0 0"><label>نطاق الكسر <select class="rangeSel" data-k="rangeN">' +
+        [4, 6, 8, 12].map(function (n) { return '<option value="' + n + '"' + (n === S.cfg.rangeN ? " selected" : "") + ">آخر " + n + " شموع (" + (n * 15) + " د)</option>"; }).join("") + "</select></label></div>";
+      html += '<section class="panel"><h2><span class="ar">' + d[2] + "</span> " + v + "</h2>" + head + chartSvg(p) + inds + sel +
+        '<div class="tickets">' + ticketHtml(p.buy, p, "شراء · BUY STOP") + ticketHtml(p.sell, p, "بيع · SELL STOP") + "</div>" +
+        '<p class="cfd-note">أمرين OCO: أول ما يتفعّل واحد، الغِ التاني. ATR 15م ≈ ' + num(p.atr15, 1) + "، آخر شمعة " + new Date(lastT * 1000).toISOString().slice(5, 16).replace("T", " ") + " UTC. تأكد إنو Result تحت الستوب بالتطبيق قريب من −$" + num(p.buy.risk, 0) + ". KST ما بينحسب هون، شيّكه على الشارت.</p></section>";
+    });
+    el.innerHTML = html;
+    el.querySelectorAll(".rangeSel").forEach(function (s) { s.addEventListener("change", function () { S.cfg.rangeN = parseInt(s.value, 10); store.set("rangeN", S.cfg.rangeN); renderDesks(); }); });
+  }
+
+  function stockStatus(sym, q, r) {
+    var isStock = /^(NASDAQ|NYSE):/.test(sym);
+    if (!isStock) return { t: "—", c: "n", rank: 0 };
+    var px = q.close, avg = q.average_volume_10d_calc, rv = q.relative_volume_10d_calc, atrp = q.ATR != null && px ? q.ATR / px * 100 : null;
+    var tags = [];
+    if (q.RSI != null && q.RSI < 30) tags.push("ذروة بيع: ممنوع شورت");
+    if (q.RSI != null && q.RSI > 70) tags.push("ممنوع شراء جديد");
+    var exempt = /:(MU|SNDK)$/.test(sym);
+    if ((avg != null && avg < 1e6) || (px < 2) || (px > 500 && !exempt) || (atrp != null && atrp < 3)) return { t: "خارج الفلتر", c: "n", rank: 0, tags: tags };
+    if (rv >= 2) {
+      if (r && r.k === "neg" && q.change < 0) return { t: "مراقبة · السوق سلبي", c: "a", rank: 3, tags: tags };
+      return { t: "مؤهل", c: "g", rank: 4, tags: tags };
+    }
+    if (rv >= 1.5) return { t: "قريب", c: "b", rank: 2, tags: tags };
+    return { t: "ضعيف", c: "n", rank: 1, tags: tags };
+  }
+
+  function renderScan() {
+    var tabs = $("#tabs"), body = $("#scan");
+    var keys = Object.keys(S.stocks);
+    if (!keys.length) { return; }
+    var secs = S.sections.filter(function (s) { return s.syms.some(function (x) { return S.stocks[x]; }); });
+    if (!S.tab || (S.tab !== "__all" && !secs.some(function (s) { return s.name === S.tab; }))) S.tab = secs.length ? (secs.filter(function (s) { return /scalp/i.test(s.name); })[0] || secs[0]).name : "__all";
+    tabs.innerHTML = secs.map(function (s) { return '<button class="tab" data-t="' + esc(s.name) + '" aria-pressed="' + (S.tab === s.name) + '">' + esc(s.name) + "</button>"; }).join("") +
+      '<button class="tab" data-t="__all" aria-pressed="' + (S.tab === "__all") + '">الكل</button>';
+    tabs.querySelectorAll(".tab").forEach(function (b) { b.addEventListener("click", function () { S.tab = b.getAttribute("data-t"); store.set("tab", S.tab); renderScan(); }); });
+    var syms = S.tab === "__all" ? keys : (secs.filter(function (s) { return s.name === S.tab; })[0] || { syms: [] }).syms.filter(function (x) { return S.stocks[x]; });
+    var r = regime();
+    var rows = syms.map(function (sym) { var q = S.stocks[sym], st = stockStatus(sym, q, r); return { sym: sym, q: q, st: st }; });
+    rows.sort(function (a, b) { return (b.st.rank - a.st.rank) || ((b.q.relative_volume_10d_calc || 0) - (a.q.relative_volume_10d_calc || 0)); });
+    body.innerHTML = rows.map(function (o) {
+      var q = o.q, st = o.st, atrp = q.ATR != null && q.close ? q.ATR / q.close * 100 : null, t15 = sign(q["Recommend.All|15"]);
+      return "<tr><td><span class=\"tk\">" + esc(q.name || o.sym.split(":")[1]) + '</span> <span class="mu" style="font-size:11px">' + esc((q.description || "").slice(0, 22)) + "</span></td>" +
+        '<td class="n">' + num(q.close, q.close < 10 ? 3 : 2) + '</td><td class="n ' + cls(q.change) + '">' + pct(q.change) + "</td>" +
+        '<td class="n ' + (q.relative_volume_10d_calc >= 2 ? "up" : "") + '">' + num(q.relative_volume_10d_calc, 2) + '×</td>' +
+        '<td class="n ' + (atrp != null && atrp >= 3 ? "up" : "mu") + '">' + num(atrp, 1) + '%</td>' +
+        '<td class="n ' + (q.RSI < 30 ? "dn" : q.RSI > 70 ? "am" : "") + '">' + num(q.RSI, 0) + '</td>' +
+        '<td class="n ' + (q["RSI|15"] < 30 ? "dn" : q["RSI|15"] > 70 ? "am" : "") + '">' + num(q["RSI|15"], 0) + '</td>' +
+        '<td class="' + (t15 > 0 ? "up" : t15 < 0 ? "dn" : "mu") + '">' + (t15 > 0 ? "شراء" : t15 < 0 ? "بيع" : "محايد") + "</td>" +
+        '<td><span class="pill ' + st.c + '">' + esc(st.t) + "</span>" + (st.tags && st.tags.length ? ' <span class="pill a">' + esc(st.tags[0]) + "</span>" : "") + "</td></tr>";
+    }).join("") || '<tr><td colspan="9" class="skeleton">ما في رموز بهالقسم.</td></tr>';
+  }
+
+  function renderAll() {
+    renderBanners(); renderRegime(); renderRisk(); renderDesks(); renderScan();
+    var f = $("#foot");
+    f.innerHTML = '<span class="live-dot' + (S.live ? "" : " off") + '"></span>' + (S.updated ? "LAST UPDATE " + new Date(S.updated).toLocaleTimeString("en-GB") : "WAITING FOR DATA") + " · DATA: TRADINGVIEW · قرار التنفيذ إلك";
+  }
+
+  /* ---------- inputs ---------- */
+  function bindInputs() {
+    var map = { "#in-acct": "acct", "#in-rpct": "rpct", "#in-pnl": "pnl", "#in-trades": "trades", "#in-losses": "losses" };
+    Object.keys(map).forEach(function (sel) {
+      var el = $(sel), k = map[sel]; el.value = S.cfg[k];
+      el.addEventListener("input", function () { var v = parseFloat(el.value); if (isNaN(v)) return; S.cfg[k] = v; store.set(k, v); renderRisk(); renderDesks(); });
+    });
+  }
+
+  /* ---------- data ---------- */
+  function onErr(key, e) { S.errs[key] = e || { code: "upstream_error" }; renderBanners(); }
+  function ok(key) { if (S.errs[key]) { delete S.errs[key]; } S.live = true; S.updated = Date.now(); }
+
+  function watchQuotes(mcp, key, symbols, cols, into, extraKey) {
+    return mcp.watchTool(SERVER, "mcp-tv-get-symbol-data-batch", { symbols: symbols, columns: cols }, function (ev) {
+      if (ev.type === "error") { onErr(key, ev.error); return; }
+      var p = payloadOf(ev.result); if (!p || !p.data) return;
+      ok(key);
+      Object.keys(p.data).forEach(function (k) { into[k] = p.data[k]; });
+      renderAll();
+    }, { refetchInterval: 30000 });
+  }
+  function watchBars(mcp, key, symbol) {
+    return mcp.watchTool(SERVER, "mcp-tv-get-ohlcv", { symbol: symbol, interval: "15m", count: 60, format: "columns" }, function (ev) {
+      if (ev.type === "error") { onErr("bars-" + key, ev.error); return; }
+      var p = payloadOf(ev.result); if (!p || !p.bars || !p.bars.c) return;
+      ok("bars-" + key); S.bars[key] = p.bars; renderAll();
+    }, { refetchInterval: 60000 });
+  }
+
+  function parseWatchlist(list) {
+    var secs = [], cur = { name: "أسواق", syms: [] }; secs.push(cur);
+    list.forEach(function (s) {
+      if (s.indexOf("###") === 0) { var nm = s.replace(/^#+/, "").replace(/[^\p{L}\p{N}% ]/gu, "").replace(/\s+/g, " ").trim() || "قسم"; cur = { name: nm, syms: [] }; secs.push(cur); }
+      else cur.syms.push(s);
+    });
+    return secs.filter(function (s) { return s.syms.length; });
+  }
+
+  async function start() {
+    var mcp = null;
+    try { mcp = window.claude && window.claude.use ? await window.claude.use("mcp") : null; } catch (e) { mcp = null; }
+    if (!mcp) { onErr("mcp", { code: "server_not_connected" }); return; }
+    watchQuotes(mcp, "core", [XAU, NDX, SPX, VIX], CORE_COLS, S.core);
+    watchBars(mcp, "XAU", XAU); watchBars(mcp, "NDX", NDX);
+    var list = null;
+    try { var r = await mcp.callTool(SERVER, "mcp-watchlist-get-active-watchlist", {}); var p = payloadOf(r); list = p && p.watchlist && p.watchlist.symbols; ok("wl"); } catch (e) { onErr("watchlist", e); }
+    if (list && list.length) {
+      S.sections = parseWatchlist(list);
+      var all = []; S.sections.forEach(function (s) { s.syms.forEach(function (x) { if (all.indexOf(x) < 0 && /^(NASDAQ|NYSE):/.test(x)) all.push(x); }); });
+      for (var i = 0; i < all.length; i += 50) watchQuotes(mcp, "stocks" + i, all.slice(i, i + 50), STOCK_COLS, S.stocks);
+    }
+  }
+
+  bindInputs(); tickClock(); setInterval(tickClock, 1000); setInterval(renderBanners, 60000);
+  renderAll();
+  start();
+})();
+</script>
