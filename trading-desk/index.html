@@ -227,6 +227,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
       <div class="clock"><small>نيويورك</small><b id="clk-ny">--:--:--</b></div>
       <div class="clock"><small>الأسهم</small><span id="st-stocks" class="pill n state">—</span></div>
       <div class="clock"><small>الذهب / TECH100</small><span id="st-gold" class="pill n state">—</span></div>
+      <button class="theme-btn" id="refresh-btn" type="button">تحديث البيانات</button>
       <button class="theme-btn" id="theme-btn" type="button" aria-label="تبديل الخلفية">فاتح</button>
     </div>
   </header>
@@ -479,13 +480,14 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
     var out = [], seen = {};
     Object.keys(S.errs).forEach(function (k) {
       var e = S.errs[k]; if (!e) return; var code = e.code || "upstream_error", msg;
-      if (code === "server_not_connected" || code === "selection_required") msg = "موصل TradingView (Trading) مش مربوط عندك. ضيفه من إعدادات الموصلات في claude.ai وارجع افتح الصفحة.";
+      if (e.quota) msg = "وصلت حد استخدام موصل TradingView مؤقتاً. استنى حوالي " + e.mins + " دقايق، والصفحة بتعيد المحاولة لحالها. آخر بيانات ناجحة ظاهرة تحت.";
+      else if (code === "server_not_connected" || code === "selection_required") msg = "موصل TradingView (Trading) مش مربوط عندك. ضيفه من إعدادات الموصلات في claude.ai وارجع افتح الصفحة.";
       else if (code === "needs_reauth") msg = "جلسة موصل Trading انتهت. أعد الربط من الإعدادات › الموصلات.";
       else if (code === "not_in_manifest" || code === "consent_required" || code === "approval_required") msg = "الصفحة بحاجة لموافقتك على استخدام موصل Trading. افتحها في claude.ai واسمح لها.";
       else if (code === "blocked_by_policy") msg = "إعدادات المؤسسة بتمنع هالأداة من الموصل.";
       else if (code === "server_unavailable" || code === "rate_limited") msg = "TradingView مش مجاوب هلق. بنحاول تاني تلقائياً، وآخر بيانات ناجحة ظاهرة تحت.";
-      else msg = "تعذّر جلب جزء من البيانات (" + esc(k) + "). الباقي شغال.";
-      if (!seen[msg]) { seen[msg] = 1; out.push('<div class="banner ' + (code === "server_unavailable" ? "warn" : "bad") + '">' + msg + "</div>"); }
+      else msg = "تعذّر جلب جزء من البيانات (" + esc(k) + "). الباقي شغال." + (e.message ? ' <span class="mono" style="font-size:11px">' + esc(String(e.message).slice(0, 140)) + "</span>" : "");
+      if (!seen[msg]) { seen[msg] = 1; out.push('<div class="banner ' + (e.quota || code === "server_unavailable" ? "warn" : "bad") + '">' + msg + "</div>"); }
     });
     var s = sessions();
     if (S.view === "trade") {
@@ -670,19 +672,51 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
   /* ---------- data ---------- */
   function onErr(key, e) { S.errs[key] = e || { code: "upstream_error" }; renderBanners(); }
   function ok(key) { if (S.errs[key]) delete S.errs[key]; S.live = true; S.updated = Date.now(); }
-  function watchQuotes(mcp, key, symbols, cols, into) {
-    return mcp.watchTool(SERVER, "mcp-tv-get-symbol-data-batch", { symbols: symbols, columns: cols }, function (ev) {
-      if (ev.type === "error") { onErr(key, ev.error); return; }
-      var p = payloadOf(ev.result); if (!p || !p.data) return;
-      ok(key); Object.keys(p.data).forEach(function (k) { into[k] = p.data[k]; }); renderAll();
-    }, { refetchInterval: 30000 });
+  var MCP = null, Q = { until: 0 }, LAST = { core: 0, bars: 0, stocks: 0 }, ALL_STOCKS = [], BUSY = false;
+  async function pull(key, tool, input, apply) {
+    if (Date.now() < Q.until) return false;
+    try {
+      var r = await MCP.callTool(SERVER, tool, input, { cache: false });
+      var p = payloadOf(r);
+      if (!apply(p)) { onErr(key, { code: "upstream_error", message: "رد فاضي من " + tool }); return false; }
+      ok(key); delete S.errs.quota; return true;
+    } catch (e) {
+      var msg = String((e && (e.message || (e.result && JSON.stringify(e.result)))) || "");
+      if (/quota|cooldown/i.test(msg)) {
+        var m = /(\d+)\s*min/i.exec(msg), mins = m ? parseInt(m[1], 10) : 6;
+        Q.until = Date.now() + (mins + 1) * 60000; S.errs.quota = { code: "tool_error", quota: true, mins: mins }; renderBanners();
+      } else onErr(key, { code: (e && e.code) || "upstream_error", message: msg });
+      return false;
+    }
   }
-  function watchBars(mcp, key, symbol) {
-    return mcp.watchTool(SERVER, "mcp-tv-get-ohlcv", { symbol: symbol, interval: "1m", count: 120, format: "columns" }, function (ev) {
-      if (ev.type === "error") { onErr("bars-" + key, ev.error); return; }
-      var p = payloadOf(ev.result); if (!p || !p.bars || !p.bars.c) return;
-      ok("bars-" + key); S.bars[key] = p.bars; renderAll();
-    }, { refetchInterval: 30000 });
+  async function refresh(kinds) {
+    if (!MCP || BUSY) return; BUSY = true;
+    var now = Date.now();
+    try {
+      if (kinds.core) {
+        await pull("core", "mcp-tv-get-symbol-data-batch", { symbols: [XAU, NDX, SPX, VIX], columns: CORE_COLS }, function (p) { if (!p || !p.data) return false; Object.keys(p.data).forEach(function (k) { S.core[k] = p.data[k]; }); return true; });
+        LAST.core = now; renderAll();
+      }
+      if (kinds.bars) {
+        await pull("bars-XAU", "mcp-tv-get-ohlcv", { symbol: XAU, interval: "1m", count: 120, format: "columns" }, function (p) { if (!p || !p.bars || !p.bars.c) return false; S.bars.XAU = p.bars; return true; });
+        await pull("bars-NDX", "mcp-tv-get-ohlcv", { symbol: NDX, interval: "1m", count: 120, format: "columns" }, function (p) { if (!p || !p.bars || !p.bars.c) return false; S.bars.NDX = p.bars; return true; });
+        LAST.bars = now; renderAll();
+      }
+      if (kinds.stocks && ALL_STOCKS.length) {
+        for (var i = 0; i < ALL_STOCKS.length; i += 50) {
+          await pull("stocks" + i, "mcp-tv-get-symbol-data-batch", { symbols: ALL_STOCKS.slice(i, i + 50), columns: STOCK_COLS }, function (p) { if (!p || !p.data) return false; Object.keys(p.data).forEach(function (k) { S.stocks[k] = p.data[k]; }); return true; });
+        }
+        LAST.stocks = now; renderAll();
+      }
+    } finally { BUSY = false; }
+  }
+  function tick() {
+    if (!MCP || Date.now() < Q.until) return;
+    var s = sessions(), open = s.gold || s.stocks, now = Date.now();
+    if (!Object.keys(S.core).length) { refresh({ core: true, bars: true, stocks: true }); return; } // nothing loaded yet (e.g. after a cooldown)
+    if (!open) return; // market closed: one load, then manual refresh only
+    var k = { core: now - LAST.core >= 90000, bars: now - LAST.bars >= 90000, stocks: s.stocks && now - LAST.stocks >= 300000 };
+    if (k.core || k.bars || k.stocks) refresh(k);
   }
   function parseWatchlist(list) {
     var secs = [], cur = { name: "أسواق", syms: [] }; secs.push(cur);
@@ -695,17 +729,26 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
     var mcp = null;
     try { mcp = window.claude && window.claude.use ? await window.claude.use("mcp") : null; } catch (e) { mcp = null; }
     if (!mcp) { onErr("mcp", { code: "server_not_connected" }); return; }
-    watchQuotes(mcp, "core", [XAU, NDX, SPX, VIX], CORE_COLS, S.core);
-    watchBars(mcp, "XAU", XAU); watchBars(mcp, "NDX", NDX);
-    var list = null;
-    try { var r = await mcp.callTool(SERVER, "mcp-watchlist-get-active-watchlist", {}); var p = payloadOf(r); list = p && p.watchlist && p.watchlist.symbols; } catch (e) { onErr("watchlist", e); }
-    if (list && list.length) {
-      S.sections = parseWatchlist(list);
-      var all = []; S.sections.forEach(function (s) { s.syms.forEach(function (x) { if (all.indexOf(x) < 0 && /^(NASDAQ|NYSE):/.test(x)) all.push(x); }); });
-      for (var i = 0; i < all.length; i += 50) watchQuotes(mcp, "stocks" + i, all.slice(i, i + 50), STOCK_COLS, S.stocks);
-    }
+    MCP = mcp;
+    await refresh({ core: true, bars: true });
+    await pull("watchlist", "mcp-watchlist-get-active-watchlist", {}, function (p) {
+      var list = p && p.watchlist && p.watchlist.symbols; if (!list || !list.length) return false;
+      S.sections = parseWatchlist(list); ALL_STOCKS = [];
+      S.sections.forEach(function (s) { s.syms.forEach(function (x) { if (ALL_STOCKS.indexOf(x) < 0 && /^(NASDAQ|NYSE):/.test(x)) ALL_STOCKS.push(x); }); });
+      return true;
+    });
+    await refresh({ stocks: true });
+    setInterval(tick, 20000);
+  }
+  function manualRefresh() {
+    var b = $("#refresh-btn");
+    if (!MCP) { start(); return; }
+    if (Date.now() < Q.until) { renderBanners(); return; }
+    b.disabled = true; b.textContent = "عم يحدّث…";
+    refresh({ core: true, bars: true, stocks: true }).then(function () { b.disabled = false; b.textContent = "تحديث البيانات"; });
   }
 
+  $("#refresh-btn").addEventListener("click", manualRefresh);
   initTheme(); bindInputs(); showView(S.view); tickClock(); setInterval(tickClock, 1000); setInterval(renderBanners, 60000);
   renderAll(); loadNews(); start();
 })();
