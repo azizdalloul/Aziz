@@ -1,0 +1,354 @@
+{
+ "updated": "2026-11-22T09:32Z",
+ "items": [
+  {
+   "src": "finviz",
+   "outlet": "Bloomberg",
+   "time": "01:52AM",
+   "en": "China’s $1.7 Trillion AI Rout Turns Hot Trade Into Losing Bet",
+   "ar": "خسائر الذكاء الاصطناعي في الصين بقيمة 1.7 تريليون دولار تحوّل صفقة رابحة إلى خاسرة",
+   "url": "https://www.bloomberg.com/news/articles/2026-11-22/china-s-1-7-trillion-ai-rout-turns-hot-trade-into-losing-bet",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 0
+  },
+  {
+   "src": "finviz",
+   "outlet": "CNBC",
+   "time": "Nov-21",
+   "en": "S&P 500 and Dow close in correction; Nasdaq erases 2026 gain",
+   "ar": "إس آند بي 500 وداو جونز يغلقان في منطقة التصحيح، وناسداك يمحو مكاسب 2026",
+   "url": "https://www.cnbc.com/2026/11/19/stock-market-today-live-updates.html",
+   "tags": [
+    "ناسداك",
+    "السوق"
+   ],
+   "id": 1
+  },
+  {
+   "src": "finviz",
+   "outlet": "MarketWatch",
+   "time": "Nov-21",
+   "en": "How a brutal week for stocks almost wiped out their gains for the entire year",
+   "ar": "كيف كاد أسبوع قاسٍ للأسهم يمحو مكاسبها طوال العام",
+   "url": "https://www.marketwatch.com/story/how-a-brutal-week-for-stocks-almost-wiped-out-their-gains-for-the-entire-year-ae6773c3",
+   "tags": [
+    "السوق"
+   ],
+   "id": 2
+  },
+  {
+   "src": "finviz",
+   "outlet": "Reuters",
+   "time": "Nov-21",
+   "en": "Anthropic's post-debut stumble delivers reality check for AI trade",
+   "ar": "تعثّر أنثروبيك بعد الإدراج يعطي جرعة واقعية لصفقة الذكاء الاصطناعي",
+   "url": "https://www.reuters.com/business/anthropics-post-debut-stumble-delivers-reality-check-ai-trade-2026-11-20/",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 3
+  },
+  {
+   "src": "finviz",
+   "outlet": "Bloomberg",
+   "time": "Nov-21",
+   "en": "Wall Street Asks What Can Save AI Trade After Anthropic Wipeout",
+   "ar": "وول ستريت تسأل: ما الذي يمكن أن ينقذ صفقة الذكاء الاصطناعي بعد انهيار أنثروبيك؟",
+   "url": "https://www.bloomberg.com/news/articles/2026-11-21/wall-street-asks-what-can-save-ai-trade-after-anthropic-wipeout",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 4
+  },
+  {
+   "src": "finviz",
+   "outlet": "Fox Business",
+   "time": "Nov-20",
+   "en": "Wall Street suffers historic losses as Dow, S&P 500 plunge into correction territory",
+   "ar": "وول ستريت تسجّل خسائر تاريخية مع دخول داو جونز وإس آند بي 500 منطقة التصحيح",
+   "url": "https://foxbusiness.com/markets/wall-street-suffers-historic-losses-dow-sp-500-plunge-correction-territory",
+   "tags": [
+    "السوق"
+   ],
+   "id": 5
+  },
+  {
+   "src": "finviz",
+   "outlet": "WSJ",
+   "time": "Nov-20",
+   "en": "Stock Market News, Nov. 20, 2026: Tech Rout Deepens as Nvidia, Anthropic Slide",
+   "ar": "أخبار سوق الأسهم 20 نوفمبر 2026: تعمّق خسائر التقنية مع تراجع إنفيديا وأنثروبيك",
+   "url": "https://www.wsj.com/livecoverage/stock-market-today-dow-sp-500-nasdaq-11-20-2026",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 6
+  },
+  {
+   "src": "finviz",
+   "outlet": "Yahoo Finance",
+   "time": "Nov-20",
+   "en": "Stocks suffer worst week of 2026, Dow has worst week since March 2020",
+   "ar": "الأسهم تسجّل أسوأ أسبوع في 2026، وداو جونز بأسوأ أسبوع منذ مارس 2020",
+   "url": "https://finance.yahoo.com/markets/live/stock-market-today-friday-november-19-dow-sp-500-nasdaq-anthropic-nvidia-141644188.html",
+   "tags": [
+    "السوق"
+   ],
+   "id": 7
+  },
+  {
+   "src": "finviz",
+   "outlet": "MarketWatch",
+   "time": "Nov-20",
+   "en": "These stocks were crushed the most this week as the tech wreck accelerated",
+   "ar": "هذه الأسهم كانت الأكثر تضرراً هذا الأسبوع مع تسارع انهيار التقنية",
+   "url": "https://www.marketwatch.com/bulletins/redirect/go?g=3c6fd2fb-0107-49a9-b380-9254239822bd&mod=mw_rss_bulletins",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 8
+  },
+  {
+   "src": "finviz",
+   "outlet": "Fox Business",
+   "time": "Nov-20",
+   "en": "Market strategist says key inflation data next week could impact Fed rate hikes",
+   "ar": "خبير استراتيجي: بيانات التضخم المهمة الأسبوع القادم قد تؤثر على قرار رفع الفائدة من الفيدرالي",
+   "url": "https://www.foxbusiness.com/video/6408680239112",
+   "tags": [
+    "الفيد"
+   ],
+   "id": 9
+  },
+  {
+   "src": "finviz",
+   "outlet": "Bloomberg",
+   "time": "Nov-21",
+   "en": "Goldman’s SpaceX Pitch Helps Solve AI Debt Puzzle",
+   "ar": "عرض غولدمان لسبيس إكس يساعد في حل لغز ديون الذكاء الاصطناعي",
+   "url": "https://www.bloomberg.com/news/articles/2026-11-21/goldman-s-spacex-pitch-helps-solve-ai-debt-puzzle-credit-weekly",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 10
+  },
+  {
+   "src": "finviz",
+   "outlet": "WSJ",
+   "time": "Nov-20",
+   "en": "The Blame Game Has Begun Over Anthropic’s Turbulent Trading Debut",
+   "ar": "بدأت لعبة تبادل اللوم بعد أول جلسة تداول مضطربة لأنثروبيك",
+   "url": "https://www.wsj.com/finance/stocks/the-blame-game-has-begun-over-anthropics-turbulent-trading-debut-280a34b1?mod=rss_markets_main",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 11
+  },
+  {
+   "src": "finviz",
+   "outlet": "Yahoo Finance",
+   "time": "Nov-21",
+   "en": "What just happened to tech stocks?",
+   "ar": "ماذا حدث للتو لأسهم التقنية؟",
+   "url": "https://finance.yahoo.com/markets/article/what-just-happened-to-tech-stocks-162354774.html",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 12
+  },
+  {
+   "src": "yahoo",
+   "outlet": "24/7 Wall St.",
+   "time": "8h ago",
+   "en": "Nvidia Stock Has Crashed 48% and Now Trades at 15 Times Earnings, Its Cheapest in More Than a Decade and Cheaper Than Microsoft and Broadcom",
+   "ar": "سهم إنفيديا انهار 48% ويتداول الآن عند 15 ضعف الأرباح، الأرخص منذ أكثر من عقد وأرخص من مايكروسوفت وبرودكوم",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/nvidia-stock-crashed-48-now-004700969.html",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 13
+  },
+  {
+   "src": "yahoo",
+   "outlet": "Motley Fool",
+   "time": "19h ago",
+   "en": "We May Be Witnessing Wall Street's Biggest Bubble Burst in Real Time (and I'm Not Talking About Artificial Intelligence)",
+   "ar": "ربما نشهد أكبر فقاعة في وول ستريت تنفجر أمامنا (وأنا لا أقصد الذكاء الاصطناعي)",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/may-witnessing-wall-streets-biggest-142602528.html",
+   "tags": [
+    "السوق"
+   ],
+   "id": 14
+  },
+  {
+   "src": "yahoo",
+   "outlet": "Motley Fool",
+   "time": "19h ago",
+   "en": "Stock Market Sell-Off: History Says This Is the Smartest Move Investors Can Make Right Now",
+   "ar": "موجة بيع في سوق الأسهم: التاريخ يقول إن هذا هو أذكى تصرف للمستثمرين الآن",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/stock-market-sell-off-history-133500447.html",
+   "tags": [
+    "السوق"
+   ],
+   "id": 15
+  },
+  {
+   "src": "yahoo",
+   "outlet": "Motley Fool",
+   "time": "6h ago",
+   "en": "Billionaire David Tepper Just Made a Massive AI Chip Rotation — Will It Pay Off?",
+   "ar": "الملياردير ديفيد تيبر ينفّذ تدويراً ضخماً في رقائق الذكاء الاصطناعي. هل سينجح؟",
+   "url": "https://finance.yahoo.com/technology/ai/articles/billionaire-david-tepper-just-made-032002032.html",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 16
+  },
+  {
+   "src": "yahoo",
+   "outlet": "Moneywise",
+   "time": "1d ago",
+   "en": "Michael Burry warns AI stocks mirror 1929 and 2000 crashes — and singles out Nvidia's risky deals",
+   "ar": "مايكل بيري يحذّر: أسهم الذكاء الاصطناعي تشبه انهيارات 1929 و2000، ويخصّ صفقات إنفيديا الخطرة",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/michael-burry-warns-ai-stocks-223000286.html",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 17
+  },
+  {
+   "src": "yahoo",
+   "outlet": "Fortune",
+   "time": "9h ago",
+   "en": "Stock market correction? Whatever — Wall Street is bullish on 2027, and one chief investment officer sees the S&P 500 soaring 45% to 10,000",
+   "ar": "تصحيح في سوق الأسهم؟ لا يهم: وول ستريت متفائلة بـ 2027، وكبير مسؤولي الاستثمار يرى إس آند بي 500 يقفز 45% إلى 10,000",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/stock-market-correction-whatever-wall-000217549.html",
+   "tags": [
+    "السوق"
+   ],
+   "id": 18
+  },
+  {
+   "src": "yahoo",
+   "outlet": "Motley Fool",
+   "time": "1h ago",
+   "en": "The S&P 500 Is 14 for 14 After Midterm Elections. Here’s How I’d Invest Now.",
+   "ar": "إس آند بي 500 رابح 14 مرة من 14 بعد انتخابات التجديد النصفي. كيف سأستثمر الآن",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/p-500-14-14-midterm-082003824.html",
+   "tags": [
+    "السوق"
+   ],
+   "id": 19
+  },
+  {
+   "src": "yahoo",
+   "outlet": "24/7 Wall St.",
+   "time": "1d ago",
+   "en": "He Handed His Daughter 50 Ounces of Gold in January, Worth $265,920 at the Record Close. It’s Down to About $177,000 Now, and if He Needs Medicaid, His Penalty Will Still Be Figured on $265,920",
+   "ar": "أعطى ابنته 50 أونصة ذهب في يناير بقيمة 265,920 دولاراً عند الإغلاق القياسي، وقيمتها الآن نحو 177,000 دولار",
+   "url": "https://finance.yahoo.com/markets/commodities/articles/handed-daughter-50-ounces-gold-010124501.html",
+   "tags": [
+    "ذهب"
+   ],
+   "id": 20
+  },
+  {
+   "src": "yahoo",
+   "outlet": "24/7 Wall St.",
+   "time": "11h ago",
+   "en": "At 74, a Machinist Planned to Pay for His Nursing Home With $150,000 in Bitcoin. After the Crash It’s Worth About $90,000, and the Loss Will Get Him Onto Medicaid About 5½ Months Sooner",
+   "ar": "مهندس عمره 74 عاماً خطط لدفع تكاليف دار رعاية بـ 150,000 دولار من بيتكوين، وبعد الانهيار تساوي نحو 90,000 دولار",
+   "url": "https://finance.yahoo.com/markets/crypto/articles/74-machinist-planned-pay-nursing-222731862.html",
+   "tags": [
+    "كريبتو"
+   ],
+   "id": 21
+  },
+  {
+   "src": "yahoo",
+   "outlet": "24/7 Wall St.",
+   "time": "7h ago",
+   "en": "He Makes $150,000 on a 2x Anthropic ETF in December at Age 65 and Loses $140,000 in January. The Gain Lands in One Tax Year, the Loss in the Next, and $15,900 More of His Social Security Becomes Taxable",
+   "ar": "رجل عمره 65 عاماً ربح 150,000 دولار من صندوق ETF مضاعف على أنثروبيك في ديسمبر ثم خسر 140,000 دولار في يناير",
+   "url": "https://finance.yahoo.com/markets/options/articles/makes-150-000-2x-anthropic-020222651.html",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 22
+  },
+  {
+   "src": "cnn",
+   "outlet": "CNN Business",
+   "time": "2026-11-20",
+   "en": "Nasdaq wipes out gains for the year as Anthropic IPO fails to quell AI nerves",
+   "ar": "ناسداك يمحو مكاسب العام بعد أن فشل إدراج أنثروبيك في تهدئة مخاوف الذكاء الاصطناعي",
+   "url": "https://edition.cnn.com/2026/11/20/investing/us-stocks-anthropic-ai",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 23
+  },
+  {
+   "src": "cnn",
+   "outlet": "CNN Business",
+   "time": "2026-11-20",
+   "en": "Why Anthropic’s blockbuster debut didn’t ease Wall Street’s AI fears",
+   "ar": "لماذا لم يخفف ظهور أنثروبيك الضخم في الأسواق مخاوف وول ستريت من الذكاء الاصطناعي",
+   "url": "https://edition.cnn.com/2026/11/20/investing/anthropic-ai-stock-nasdaq",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 24
+  },
+  {
+   "src": "cnn",
+   "outlet": "CNN Business",
+   "time": "2026-11-19",
+   "en": "US mortgage rates rise for the first time in five weeks",
+   "ar": "ارتفاع أسعار الرهن العقاري في أمريكا للمرة الأولى منذ خمسة أسابيع",
+   "url": "https://edition.cnn.com/2026/11/19/economy/us-mortgage-rates-rise",
+   "tags": [
+    "الفيد"
+   ],
+   "id": 25
+  },
+  {
+   "src": "cnn",
+   "outlet": "CNN Business",
+   "time": "2026-11-19",
+   "en": "Gas prices take biggest 3-week dive since 2008",
+   "ar": "أسعار البنزين تسجّل أكبر هبوط خلال ثلاثة أسابيع منذ 2008",
+   "url": "https://edition.cnn.com/2026/11/19/economy/gas-prices-fall",
+   "tags": [
+    "الفيد"
+   ],
+   "id": 26
+  },
+  {
+   "src": "cnn",
+   "outlet": "CNN Business",
+   "time": "2026-11-18",
+   "en": "Anthropic’s Wall Street debut marks a new chapter for AI",
+   "ar": "ظهور أنثروبيك في وول ستريت يفتح فصلاً جديداً للذكاء الاصطناعي",
+   "url": "https://edition.cnn.com/2026/11/18/investing/anthropic-ipo-wall-street-ai",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 27
+  },
+  {
+   "src": "cnn",
+   "outlet": "CNN Business",
+   "time": "2026-11-18",
+   "en": "Anthropic’s $83 IPO price puts it on track for a record-breaking debut on Wall Street. Here’s what it means",
+   "ar": "سعر إدراج أنثروبيك عند 83 دولاراً يضعها على طريق ظهور قياسي في وول ستريت، وهذا ما يعنيه",
+   "url": "https://edition.cnn.com/2026/11/18/investing/anthropic-ipo-price-stock",
+   "tags": [
+    "ناسداك"
+   ],
+   "id": 28
+  }
+ ]
+}
