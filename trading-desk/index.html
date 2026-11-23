@@ -291,8 +291,8 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
 (function () {
   "use strict";
   var SERVER = "Trading";
-  var XAU = "OANDA:XAUUSD", NDX = "NASDAQ:NDX", SPX = "SP:SPX", VIX = "TVC:VIX";
-  var CORE_COLS = ["name","description","close","change","change_abs","high","low","volume","RSI","RSI|15","Recommend.All","Recommend.All|15","Recommend.All|60","ATR","VWAP"];
+  var XAU = "OANDA:XAUUSD", NDX = "NASDAQ:NDX", SPX = "SP:SPX", VIX = "TVC:VIX", NQ = "CME_MINI:NQ1!";
+  var CORE_COLS = ["update_mode","name","description","close","change","change_abs","high","low","volume","RSI","RSI|15","Recommend.All","Recommend.All|15","Recommend.All|60","ATR","VWAP"];
   var STOCK_COLS = ["name","description","close","change","volume","average_volume_10d_calc","relative_volume_10d_calc","RSI","RSI|15","Recommend.All|15","ATR"];
   var RANGE_OPTS = [10, 15, 20, 30];
 
@@ -310,6 +310,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
 
   var rn = store.get("rangeN1", 15); if (RANGE_OPTS.indexOf(rn) < 0) rn = 15;
   var S = {
+    off: { XAU: store.get("off_XAU", 0), NDX: store.get("off_NDX", 0) },
     core: {}, stocks: {}, bars: {}, sections: [], tab: store.get("tab", ""), errs: {}, updated: null, live: false,
     view: store.get("view", "trade"),
     cfg: { acct: store.get("acct", 10500), rpct: store.get("rpct", 1), pnl: store.get("pnl", 0), trades: store.get("trades", 0), losses: store.get("losses", 0), rangeN: rn }
@@ -387,10 +388,11 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
     if (vals.length < 10) return null;
     return { kst: vals[vals.length - 1], sig: sma(vals, 9) };
   }
-  function agg5(b) { // 1m -> 5m, aligned from the last bar
+  function agg5(b) { return aggN(b, 5); }
+  function aggN(b, n) { // 1m -> n-minute bars, aligned from the last bar
     var L = b.c.length, o = [], h = [], l = [], c = [];
-    for (var end = L; end - 5 >= 0; end -= 5) {
-      var s = end - 5; o.unshift(b.o[s]); c.unshift(b.c[end - 1]);
+    for (var end = L; end - n >= 0; end -= n) {
+      var s = end - n; o.unshift(b.o[s]); c.unshift(b.c[end - 1]);
       h.unshift(Math.max.apply(null, b.h.slice(s, end))); l.unshift(Math.min.apply(null, b.l.slice(s, end)));
     }
     return { o: o, h: h, l: l, c: c };
@@ -426,6 +428,9 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
     var rsi1 = rsiOf(b.c, 14), kst = kstOf(b.c), e9_5 = ema(b5.c, 9), e20_5 = ema(b5.c, 20);
     var vols = b.v || [], vAvg3 = vols.length ? sma(vols, 3) : 0, vAvg20 = vols.length ? sma(vols, 20) : 0, vRatio = vAvg20 ? vAvg3 / vAvg20 : 1;
     var rsi15 = q["RSI|15"], rec15 = q["Recommend.All|15"], rec60 = q["Recommend.All|60"], vwap = q.VWAP;
+    var b15 = aggN(b, 15), derived = false; // futures quotes come without 15m ratings: derive them from the bars
+    if (rsi15 == null && b15.c.length >= 15) { rsi15 = rsiOf(b15.c, 14); derived = true; }
+    if (rec15 == null && b15.c.length >= 10) { rec15 = ema(b15.c, 9) > ema(b15.c, 20) ? 0.5 : -0.5; derived = true; }
     var t15 = sign(rec15), t60 = sign(rec60), t5 = e9_5 > e20_5 ? 1 : -1;
     var r = regime(), g = gate(), sess = sessions();
     var inds = [
@@ -470,9 +475,9 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
       if (r && r.k !== "pos") { mult = 0.5; if (grade !== "X") reasons.push(r.k === "neg" ? "السوق سلبي: نص الحجم" : "السوق محايد: نص الحجم"); }
       fl.forEach(function (x) { reasons.push("خصم: " + x); });
       var risk = S.cfg.acct * S.cfg.rpct / 100 * mult, units = risk / R;
-      return { dir: dir, E: E, R: R, sl: sl, tp: tp, total: total, grade: grade, blocked: blocked, go: !blocked && grade !== "X", mult: mult, reasons: reasons, parts: parts, risk: risk, units: units, amount: units * E, win: units * 2 * R, agree: agree };
+      return { dir: dir, E: E, R: R, sl: sl, tp: tp, total: total, grade: grade, blocked: blocked, go: !blocked && grade !== "X", mult: mult, reasons: reasons, parts: parts, risk: risk, units: units, amount: units * (E + (S.off[key] || 0)), win: units * 2 * R, agree: agree };
     }
-    return { key: key, q: q, b: b, hi: hi, lo: lo, mid: mid, atr5: atr5, inds: inds, buy: side("buy"), sell: side("sell"), vwap: vwap, n: n, rsi1: rsi1 };
+    return { key: key, q: q, b: b, hi: hi, lo: lo, mid: mid, atr5: atr5, inds: inds, buy: side("buy"), sell: side("sell"), vwap: vwap, n: n, rsi1: rsi1, off: S.off[key] || 0, derived: derived, rsi15: rsi15 };
   }
 
   /* ---------- rendering: trading ---------- */
@@ -503,7 +508,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
     if (!r) { el.innerHTML = '<div class="skeleton">بانتظار بيانات SPX و NDX و VIX…</div>'; return; }
     function tile(lbl, q, d) { return '<div class="tile"><small>' + lbl + '</small><div class="v">' + N(num(q.close, d)) + '</div><div class="c ' + cls(q.change) + '">' + N(pct(q.change)) + "</div></div>"; }
     el.innerHTML = '<div class="verdict-big"><span class="label">REGIME</span><span class="word ' + r.c + '">' + r.word + "</span><p>" + r.note + "</p></div>" +
-      '<div class="tiles">' + tile("XAUUSD", S.core[XAU], 2) + tile("NDX", S.core[NDX], 0) + tile("SPX", S.core[SPX], 0) + tile("VIX", S.core[VIX], 2) + "</div>";
+      '<div class="tiles">' + tile("XAUUSD", S.core[XAU], 2) + tile(S.core[NQ] ? "NQ فيوتشر" : "NDX", S.core[NQ] || S.core[NDX], 0) + tile("SPX", S.core[SPX], 0) + tile("VIX", S.core[VIX], 2) + "</div>";
   }
 
   function renderRisk() {
@@ -544,7 +549,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
     var digits = p.q.close > 1000 ? 1 : 2;
     var st = t.go ? (t.grade === "A" ? '<span class="pill g">جاهز · حجم كامل</span>' : '<span class="pill a">مقبول · نص حجم</span>') : '<span class="pill r">لا صفقة</span>';
     var bcls = t.total >= 90 ? "hi" : t.total >= 80 ? "mid" : "";
-    var rows = "<dt>Set Stop</dt><dd>" + num(t.E, digits) + "</dd><dt>Take Profit (2R)</dt><dd>" + num(t.tp, digits) + "</dd><dt>Stop Loss</dt><dd>" + num(t.sl, digits) + "</dd>" +
+    var rows = "<dt>Set Stop</dt><dd>" + num(t.E + p.off, digits) + "</dd><dt>Take Profit (2R)</dt><dd>" + num(t.tp + p.off, digits) + "</dd><dt>Stop Loss</dt><dd>" + num(t.sl + p.off, digits) + "</dd>" +
       "<dt>المبلغ بالتطبيق</dt><dd>$" + num(t.amount, 0) + "</dd><dt>الربح عند الهدف</dt><dd class=\"up\">+$" + num(t.win, 0) + "</dd><dt>الخسارة عند الستوب</dt><dd class=\"dn\">−$" + num(t.risk, 0) + "</dd>" +
       (p.key === "XAU" ? "<dt>هامش تقريبي (÷20)</dt><dd>$" + num(t.amount / 20, 0) + "</dd>" : "");
     var rs = t.reasons.length ? "<ul>" + t.reasons.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "";
@@ -557,23 +562,32 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
 
   function renderDesks() {
     var el = $("#desks"), html = "";
-    [["XAU", XAU, "الذهب · XAUUSD"], ["NDX", NDX, "ناسداك · TECH100"]].forEach(function (d) {
+    [["XAU", XAU, "الذهب · XAUUSD"], ["NDX", NQ, "ناسداك · TECH100 (عقد NQ)"]].forEach(function (d) {
       var q = S.core[d[1]], b = S.bars[d[0]];
       if (!q) { html += '<section class="panel"><h2><span class="ar">' + d[2] + '</span></h2><div class="skeleton">بانتظار السعر…</div></section>'; return; }
       var pos = q.high > q.low ? Math.max(0, Math.min(100, (q.close - q.low) / (q.high - q.low) * 100)) : 50, dg = q.close > 1000 ? 0 : 1;
-      var head = '<div class="desk-head"><div><div class="sym">' + esc(d[1]) + '</div><div class="px">' + N(num(q.close, q.close > 1000 ? 1 : 2)) + '</div></div><div><span class="pill ' + (q.change > 0 ? "g" : q.change < 0 ? "r" : "n") + '">' + N(pct(q.change)) + '</span></div></div>' +
+      var head = '<div class="desk-head"><div><div class="sym">' + esc(d[1]) + '</div><div class="px">' + N(num(q.close, q.close > 1000 ? 1 : 2)) + '</div></div><div><span class="pill ' + (q.change > 0 ? "g" : q.change < 0 ? "r" : "n") + '">' + N(pct(q.change)) + '</span>' + (/delayed_streaming_(\d+)/.test(q.update_mode || "") ? ' <span class="pill a">متأخر ' + Math.round(parseInt(/delayed_streaming_(\d+)/.exec(q.update_mode)[1], 10) / 60) + " د</span>" : "") + '</div></div>' +
         '<div class="range-bar"><i style="right:calc(' + (100 - pos) + '% - 1px)"></i></div><div class="range-lbl"><span>H ' + num(q.high, dg) + '</span><span>L ' + num(q.low, dg) + '</span></div>';
       if (!b || b.c.length < 60) { html += '<section class="panel"><h2><span class="ar">' + d[2] + "</span></h2>" + head + '<div class="skeleton">بانتظار شموع الدقيقة…</div></section>'; return; }
       var p = plan(d[0], q, b), best = Math.max(p.buy.go ? p.buy.total : 0, p.sell.go ? p.sell.total : 0);
       var v = best >= 90 ? '<span class="pill g">فرصة ' + best + "</span>" : best >= 80 ? '<span class="pill a">مقبولة ' + best + "</span>" : '<span class="pill r">لا صفقة</span>';
       var lastT = b.t[b.t.length - 1];
       var inds = '<div class="inds">' + p.inds.map(function (i) { return '<div class="ind"><small>' + esc(i.k) + '</small><b class="' + (i.s > 0 ? "up" : i.s < 0 ? "dn" : "mu") + '">' + esc(i.t) + "</b></div>"; }).join("") + "</div>";
-      var sel = '<div class="controls" style="margin:10px 0 0"><label>نطاق الكسر <select class="rangeSel">' + RANGE_OPTS.map(function (n) { return '<option value="' + n + '"' + (n === S.cfg.rangeN ? " selected" : "") + ">آخر " + n + " شمعة (" + n + " د)</option>"; }).join("") + "</select></label></div>";
+      var offVal = S.off[d[0]] ? num(q.close + S.off[d[0]], dg === 0 ? 1 : 2) : "";
+      var offCtl = '<label>سعر تطبيقك الحالي <input type="number" class="offIn" data-k="' + d[0] + '" data-px="' + q.close + '" step="0.1" value="' + offVal + '" placeholder="' + num(q.close, dg === 0 ? 1 : 2) + '"></label>' +
+        (S.off[d[0]] ? '<span class="pill b">فرق عن الفيد ' + N((S.off[d[0]] > 0 ? "+" : "") + num(S.off[d[0]], 2)) + "</span>" : "");
+      var sel = '<div class="controls" style="margin:10px 0 0">' + offCtl + '<label>نطاق الكسر <select class="rangeSel">' + RANGE_OPTS.map(function (n) { return '<option value="' + n + '"' + (n === S.cfg.rangeN ? " selected" : "") + ">آخر " + n + " شمعة (" + n + " د)</option>"; }).join("") + "</select></label></div>";
       html += '<section class="panel"><h2><span class="ar">' + d[2] + "</span> " + v + "</h2>" + head + chartSvg(p) + inds + sel +
         '<div class="tickets">' + ticketHtml(p.buy, p, "شراء · BUY STOP") + ticketHtml(p.sell, p, "بيع · SELL STOP") + "</div>" +
         '<p class="cfd-note">أمرين OCO على فريم الدقيقة: أول ما يتفعّل واحد، الغِ التاني. ATR 5م ≈ ' + num(p.atr5, 2) + "، آخر شمعة " + new Date(lastT * 1000).toISOString().slice(5, 16).replace("T", " ") + " UTC. تأكد إنو Result تحت الستوب بالتطبيق قريب من −$" + num(p.buy.risk, 0) + ".</p></section>";
     });
     el.innerHTML = html;
+    el.querySelectorAll(".offIn").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        var k = inp.getAttribute("data-k"), px = parseFloat(inp.getAttribute("data-px")), v = parseFloat(inp.value);
+        S.off[k] = isNaN(v) ? 0 : Math.round((v - px) * 100) / 100; store.set("off_" + k, S.off[k]); renderDesks();
+      });
+    });
     el.querySelectorAll(".rangeSel").forEach(function (s) { s.addEventListener("change", function () { S.cfg.rangeN = parseInt(s.value, 10); store.set("rangeN1", S.cfg.rangeN); renderDesks(); }); });
   }
 
@@ -694,12 +708,12 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
     var now = Date.now();
     try {
       if (kinds.core) {
-        await pull("core", "mcp-tv-get-symbol-data-batch", { symbols: [XAU, NDX, SPX, VIX], columns: CORE_COLS }, function (p) { if (!p || !p.data) return false; Object.keys(p.data).forEach(function (k) { S.core[k] = p.data[k]; }); return true; });
+        await pull("core", "mcp-tv-get-symbol-data-batch", { symbols: [XAU, NDX, SPX, VIX, NQ], columns: CORE_COLS }, function (p) { if (!p || !p.data) return false; Object.keys(p.data).forEach(function (k) { S.core[k] = p.data[k]; }); return true; });
         LAST.core = now; renderAll();
       }
       if (kinds.bars) {
-        await pull("bars-XAU", "mcp-tv-get-ohlcv", { symbol: XAU, interval: "1m", count: 120, format: "columns" }, function (p) { if (!p || !p.bars || !p.bars.c) return false; S.bars.XAU = p.bars; return true; });
-        await pull("bars-NDX", "mcp-tv-get-ohlcv", { symbol: NDX, interval: "1m", count: 120, format: "columns" }, function (p) { if (!p || !p.bars || !p.bars.c) return false; S.bars.NDX = p.bars; return true; });
+        await pull("bars-XAU", "mcp-tv-get-ohlcv", { symbol: XAU, interval: "1m", count: 300, format: "columns" }, function (p) { if (!p || !p.bars || !p.bars.c) return false; S.bars.XAU = p.bars; return true; });
+        await pull("bars-NDX", "mcp-tv-get-ohlcv", { symbol: NQ, interval: "1m", count: 300, format: "columns" }, function (p) { if (!p || !p.bars || !p.bars.c) return false; S.bars.NDX = p.bars; return true; });
         LAST.bars = now; renderAll();
       }
       if (kinds.stocks && ALL_STOCKS.length) {
