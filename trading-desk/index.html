@@ -551,7 +551,8 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
     var bcls = t.total >= 90 ? "hi" : t.total >= 80 ? "mid" : "";
     var rows = "<dt>Set Stop</dt><dd>" + num(t.E + p.off, digits) + "</dd><dt>Take Profit (2R)</dt><dd>" + num(t.tp + p.off, digits) + "</dd><dt>Stop Loss</dt><dd>" + num(t.sl + p.off, digits) + "</dd>" +
       "<dt>المبلغ بالتطبيق</dt><dd>$" + num(t.amount, 0) + "</dd><dt>الربح عند الهدف</dt><dd class=\"up\">+$" + num(t.win, 0) + "</dd><dt>الخسارة عند الستوب</dt><dd class=\"dn\">−$" + num(t.risk, 0) + "</dd>" +
-      (p.key === "XAU" ? "<dt>هامش تقريبي (÷20)</dt><dd>$" + num(t.amount / 20, 0) + "</dd>" : "");
+      "<dt>الحجم بالتطبيق</dt><dd>" + num(Math.floor(t.units / (p.key === "XAU" ? 100 : 20) * 100) / 100, 2) + " لوت</dd>" +
+      "<dt>هامش تقريبي (" + (p.key === "XAU" ? "÷20" : "÷200") + ")</dt><dd>$" + num(t.amount / (p.key === "XAU" ? 20 : 200), 0) + "</dd>";
     var rs = t.reasons.length ? "<ul>" + t.reasons.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "";
     var det = '<details class="parts"><summary>تفصيل التقييم</summary><table><tbody>' + t.parts.map(function (x) { return "<tr><td>" + x[0] + '</td><td class="n">' + x[1] + " / " + x[2] + "</td></tr>"; }).join("") + "</tbody></table></details>";
     return '<div class="ticket ' + (t.go ? (t.grade === "A" ? "ready" : "ok") : "off") + '"><h3><span>' + label + "</span>" + st + "</h3>" +
@@ -579,7 +580,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; font-family: 
       var sel = '<div class="controls" style="margin:10px 0 0">' + offCtl + '<label>نطاق الكسر <select class="rangeSel">' + RANGE_OPTS.map(function (n) { return '<option value="' + n + '"' + (n === S.cfg.rangeN ? " selected" : "") + ">آخر " + n + " شمعة (" + n + " د)</option>"; }).join("") + "</select></label></div>";
       html += '<section class="panel"><h2><span class="ar">' + d[2] + "</span> " + v + "</h2>" + head + chartSvg(p) + inds + sel +
         '<div class="tickets">' + ticketHtml(p.buy, p, "شراء · BUY STOP") + ticketHtml(p.sell, p, "بيع · SELL STOP") + "</div>" +
-        '<p class="cfd-note">أمرين OCO على فريم الدقيقة: أول ما يتفعّل واحد، الغِ التاني. ATR 5م ≈ ' + num(p.atr5, 2) + "، آخر شمعة " + new Date(lastT * 1000).toISOString().slice(5, 16).replace("T", " ") + " UTC. تأكد إنو Result تحت الستوب بالتطبيق قريب من −$" + num(p.buy.risk, 0) + ".</p></section>";
+        '<p class="cfd-note">أمرين OCO على فريم الدقيقة: أول ما يتفعّل واحد، الغِ التاني. ATR 5م ≈ ' + num(p.atr5, 2) + "، آخر شمعة " + new Date(lastT * 1000).toISOString().slice(5, 16).replace("T", " ") + " UTC. تأكد إنو Result تحت الستوب بالتطبيق قريب من −$" + num(p.buy.risk, 0) + "." + (d[0] === "NDX" ? " اللوت بالناسداك = 20 وحدة، والسبريد حوالي 2.1 نقطة (محسوب من تطبيقك)." : "") + "</p></section>";
     });
     el.innerHTML = html;
     el.querySelectorAll(".offIn").forEach(function (inp) {
